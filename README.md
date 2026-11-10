@@ -50,14 +50,9 @@ npm run dev              # http://localhost:3000
 
 ### 4. Publicar na internet
 
-Funciona em qualquer host que rode Node ou em modo estático. O mais direto:
-
-```bash
-npm run build
-```
-
-Depois suba a pasta `.output/` para Vercel, Netlify ou Cloudflare Pages, configurando
-`SUPABASE_URL` e `SUPABASE_KEY` como variáveis de ambiente lá.
+Veja **CLOUDFLARE.md** para o passo a passo na Cloudflare Pages, que é o destino deste
+projeto. Em resumo: conectar o repositório, build `npm run build`, saída `dist`, e as
+variáveis `SUPABASE_URL` e `SUPABASE_KEY` nos dois ambientes.
 
 ---
 
