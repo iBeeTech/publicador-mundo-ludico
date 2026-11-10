@@ -1,0 +1,210 @@
+/* Publicador de Jogos — Escola Mundo Lúdico
+   Identidade: índigo profundo com manga, a mesma família dos tutoriais. */
+
+:root {
+  --tinta: #241b33;
+  --tinta-suave: #5b5173;
+  --papel: #f5f4f9;
+  --cartao: #ffffff;
+  --linha: #dedae8;
+  --realce: #ee5c33;
+  --apoio: #1f8e86;
+  --alerta: #c23434;
+  --ok: #3f8f3b;
+  --tela: #1a1326;
+
+  --titulo: "Baloo 2", "Trebuchet MS", system-ui, sans-serif;
+  --texto: "Inter", system-ui, -apple-system, sans-serif;
+
+  --raio: 12px;
+  --sombra: 0 1px 2px rgba(36, 27, 51, 0.06), 0 8px 24px rgba(36, 27, 51, 0.06);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --tinta: #ede9f6;
+    --tinta-suave: #a89fc0;
+    --papel: #171023;
+    --cartao: #221934;
+    --linha: #35294c;
+    --realce: #ff7a52;
+    --apoio: #46c2b6;
+    --alerta: #ff6e6e;
+    --ok: #6fcb68;
+    --tela: #0f0a18;
+    --sombra: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.28);
+    color-scheme: dark;
+  }
+}
+
+* { box-sizing: border-box; }
+
+html, body { margin: 0; padding: 0; }
+
+body {
+  background: var(--papel);
+  color: var(--tinta);
+  font-family: var(--texto);
+  font-size: 15px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 { font-family: var(--titulo); margin: 0; text-wrap: balance; }
+h1 { font-size: clamp(26px, 5vw, 36px); line-height: 1.15; }
+h2 { font-size: 22px; line-height: 1.2; }
+h3 { font-size: 18px; line-height: 1.25; }
+p { margin: 0; }
+a { color: inherit; }
+
+.envoltorio {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding-left: max(18px, env(safe-area-inset-left, 0px));
+  padding-right: max(18px, env(safe-area-inset-right, 0px));
+  padding-block: 26px 56px;
+}
+
+.sobrenome {
+  font-size: 12px; font-weight: 600; letter-spacing: 0.13em;
+  text-transform: uppercase; color: var(--realce);
+}
+
+/* ---------- cabeçalho ---------- */
+.topo {
+  border-bottom: 1px solid var(--linha);
+  background: var(--cartao);
+}
+.topo .dentro {
+  max-width: 1080px; margin: 0 auto;
+  padding-inline: max(18px, env(safe-area-inset-left, 0px));
+  padding-block: 14px;
+  display: flex; align-items: center; justify-content: space-between; gap: 14px;
+  flex-wrap: wrap;
+}
+.marca { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+.marca .selo {
+  width: 32px; height: 32px; border-radius: 9px; flex: 0 0 auto;
+  background: linear-gradient(140deg, var(--realce), var(--apoio));
+}
+.marca strong { font-family: var(--titulo); font-size: 17px; }
+.marca span { display: block; font-size: 11.5px; color: var(--tinta-suave); line-height: 1.1; }
+.navegacao { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+
+/* ---------- botões ---------- */
+.btn {
+  font: inherit; font-weight: 600; font-size: 14px;
+  border: 1px solid var(--linha); background: var(--cartao); color: var(--tinta);
+  border-radius: 999px; padding: 8px 16px; cursor: pointer; text-decoration: none;
+  display: inline-flex; align-items: center; gap: 7px; line-height: 1.2;
+}
+.btn:hover { border-color: var(--tinta-suave); }
+.btn:focus-visible { outline: 2px solid var(--realce); outline-offset: 2px; }
+.btn.principal { background: var(--realce); border-color: var(--realce); color: #fff; }
+.btn.principal:hover { filter: brightness(1.05); }
+.btn.perigo { color: var(--alerta); border-color: color-mix(in srgb, var(--alerta) 40%, transparent); }
+.btn.pequeno { padding: 5px 12px; font-size: 13px; }
+.btn:disabled { opacity: .55; cursor: not-allowed; }
+
+/* ---------- formulários ---------- */
+.campo { display: grid; gap: 5px; }
+.campo label { font-size: 13px; font-weight: 600; color: var(--tinta-suave); }
+.campo .ajuda { font-size: 12.5px; color: var(--tinta-suave); }
+input[type="text"], input[type="email"], input[type="password"], input[type="number"], select, textarea {
+  font: inherit; font-size: 14.5px;
+  background: var(--cartao); color: var(--tinta);
+  border: 1px solid var(--linha); border-radius: 9px; padding: 9px 12px; width: 100%;
+}
+input:focus, select:focus, textarea:focus { outline: 2px solid var(--realce); outline-offset: 0; border-color: transparent; }
+textarea { min-height: 76px; resize: vertical; }
+.linha-campos { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.caixa-check {
+  display: flex; gap: 10px; align-items: flex-start;
+  border: 1px solid var(--linha); border-radius: var(--raio); padding: 12px 14px;
+  background: var(--cartao);
+}
+.caixa-check input { margin-top: 3px; width: 18px; height: 18px; flex: 0 0 auto; }
+.caixa-check .txt { font-size: 13.5px; color: var(--tinta-suave); }
+.caixa-check .txt b { color: var(--tinta); display: block; font-size: 14px; }
+
+/* ---------- blocos ---------- */
+.painel {
+  background: var(--cartao); border: 1px solid var(--linha);
+  border-radius: var(--raio); padding: 20px; display: grid; gap: 16px;
+}
+.aviso {
+  border-radius: var(--raio); padding: 12px 15px; font-size: 13.5px;
+  border: 1px solid color-mix(in srgb, var(--realce) 35%, transparent);
+  background: color-mix(in srgb, var(--realce) 9%, transparent);
+  color: var(--tinta);
+}
+.aviso.erro {
+  border-color: color-mix(in srgb, var(--alerta) 45%, transparent);
+  background: color-mix(in srgb, var(--alerta) 10%, transparent);
+}
+.aviso.bom {
+  border-color: color-mix(in srgb, var(--ok) 45%, transparent);
+  background: color-mix(in srgb, var(--ok) 10%, transparent);
+}
+.aviso b { font-weight: 600; }
+
+.etiqueta {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 12px; font-weight: 600; border-radius: 6px; padding: 3px 9px;
+  border: 1px solid var(--linha); color: var(--tinta-suave);
+}
+.etiqueta.verde { color: var(--ok); border-color: color-mix(in srgb, var(--ok) 45%, transparent); }
+.etiqueta.cinza { color: var(--tinta-suave); }
+.etiqueta.vermelha { color: var(--alerta); border-color: color-mix(in srgb, var(--alerta) 45%, transparent); }
+
+/* ---------- galeria pública ---------- */
+.vitrine { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); }
+.jogo-cartao {
+  background: var(--cartao); border: 1px solid var(--linha); border-radius: var(--raio);
+  overflow: hidden; text-decoration: none; display: grid; grid-template-rows: auto 1fr;
+  box-shadow: var(--sombra); min-width: 0;
+}
+.jogo-cartao:hover { border-color: var(--realce); }
+.jogo-cartao .capa {
+  aspect-ratio: 4 / 3; background: var(--tela);
+  display: grid; place-items: center; overflow: hidden;
+}
+.jogo-cartao .capa img { width: 56%; height: auto; image-rendering: pixelated; }
+.jogo-cartao .capa .vazia { font-family: var(--titulo); font-size: 34px; color: #6a5e82; }
+.jogo-cartao .corpo { padding: 13px 15px 15px; display: grid; gap: 4px; align-content: start; }
+.jogo-cartao h3 { font-size: 17px; }
+.jogo-cartao .autor { font-size: 13px; color: var(--realce); font-weight: 600; }
+.jogo-cartao .resumo {
+  font-size: 13px; color: var(--tinta-suave);
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+
+/* ---------- player ---------- */
+.palco {
+  background: var(--tela); border: 1px solid var(--linha); border-radius: var(--raio);
+  overflow: hidden; width: 100%;
+}
+.palco iframe { display: block; width: 100%; border: 0; background: var(--tela); }
+
+/* ---------- tabela ---------- */
+.rolagem { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 520px; }
+th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--linha); vertical-align: middle; }
+th { font-size: 12px; text-transform: uppercase; letter-spacing: .07em; color: var(--tinta-suave); font-weight: 600; }
+tbody tr:last-child td { border-bottom: 0; }
+.acoes { display: flex; gap: 6px; flex-wrap: wrap; }
+
+/* ---------- barra de progresso ---------- */
+.progresso { height: 8px; background: var(--linha); border-radius: 999px; overflow: hidden; }
+.progresso > div { height: 100%; background: var(--realce); transition: width .15s linear; }
+
+.vazio-estado {
+  border: 1px dashed var(--linha); border-radius: var(--raio);
+  padding: 28px; text-align: center; color: var(--tinta-suave); font-size: 14px;
+}
+
+.lista-arquivos {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px; color: var(--tinta-suave);
+  max-height: 150px; overflow-y: auto; display: grid; gap: 2px;
+}

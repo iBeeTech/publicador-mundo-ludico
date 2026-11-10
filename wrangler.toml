@@ -1,0 +1,9 @@
+# Configuração do Cloudflare Pages.
+# A Pages lê este arquivo no build, então quase nada precisa ser clicado no painel.
+name = "publicador-mundo-ludico"
+pages_build_output_dir = "dist"
+compatibility_date = "2025-07-15"
+
+# Obrigatório: o Nuxt/Nitro usa APIs de Node no runtime da Cloudflare.
+# Sem esta flag o deploy sobe e o site responde 500.
+compatibility_flags = ["nodejs_compat"]
