@@ -41,6 +41,12 @@ onMounted(async () => {
   if (error) console.error('Não foi possível registrar a jogada', error.message)
 })
 
+// O iPhone não deixa elementos da página entrarem em tela cheia: lá o botão some.
+const podeTelaCheia = ref(false)
+onMounted(() => {
+  podeTelaCheia.value = Boolean(document.fullscreenEnabled && palco.value?.requestFullscreen)
+})
+
 function telaCheia() {
   palco.value?.requestFullscreen?.().catch(() => {})
 }
@@ -57,8 +63,14 @@ useHead(() => ({ title: jogo.value ? `${jogo.value.titulo} — Arcade Mundo Lúd
           <h1 style="margin-top:4px">{{ jogo.titulo }}</h1>
           <p style="color:var(--realce); font-weight:600">por {{ jogo.autor }}</p>
         </div>
-        <button type="button" class="btn" @click="telaCheia">Tela cheia</button>
+        <button v-if="podeTelaCheia" type="button" class="btn" @click="telaCheia">Tela cheia</button>
       </div>
+
+      <!-- Só aparece em aparelhos de toque (celular e tablet), pelo CSS. -->
+      <p class="aviso-toque" role="note">
+        <b>Atenção:</b> jogos que não foram feitos para celular podem não funcionar direito com o
+        toque na tela. Nesses jogos, use as setas do teclado.
+      </p>
 
       <p v-if="jogo.descricao" style="color:var(--tinta-suave); max-width:65ch; margin-bottom:16px">
         {{ jogo.descricao }}
@@ -76,7 +88,7 @@ useHead(() => ({ title: jogo.value ? `${jogo.value.titulo} — Arcade Mundo Lúd
         />
       </div>
 
-      <p style="color:var(--tinta-suave); font-size:13px; margin-top:12px">
+      <p class="dica-teclado">
         Se o teclado parar de responder, clique no jogo. Alguns jogos só ligam o som depois do primeiro clique.
       </p>
 

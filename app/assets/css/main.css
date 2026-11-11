@@ -8,7 +8,11 @@
   --marca-suave: #e3f3fb;
   --tinta: #0f2d42;
   --tinta-suave: #4d6a7f;
-  --papel: #f3f9fd;
+  --papel: #eef8ff;
+  --amarelo: #ffc531;
+  --coral: #ff6b5e;
+  --verde: #2fbf71;
+  --sombra-brinquedo: 0 5px 0 rgba(0, 92, 138, 0.22);
   --cartao: #ffffff;
   --linha: #d3e5f0;
   --realce: var(--marca-forte);
@@ -21,27 +25,8 @@
   --titulo: "Baloo 2", "Trebuchet MS", system-ui, sans-serif;
   --texto: "Inter", system-ui, -apple-system, sans-serif;
 
-  --raio: 14px;
+  --raio: 22px;
   --sombra: 0 1px 2px rgba(15, 45, 66, 0.06), 0 10px 28px rgba(0, 114, 168, 0.08);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --marca-forte: #45bff2;
-    --marca-suave: #0d3349;
-    --tinta: #e6f4fb;
-    --tinta-suave: #98b7ca;
-    --papel: #071a27;
-    --cartao: #0e2738;
-    --linha: #1d4058;
-    --apoio: #ffd25e;
-    --sobre-realce: #04121c;
-    --alerta: #ff7a7a;
-    --ok: #6fd27b;
-    --tela: #04121c;
-    --sombra: 0 1px 2px rgba(0, 0, 0, 0.35), 0 10px 28px rgba(0, 0, 0, 0.3);
-    color-scheme: dark;
-  }
 }
 
 * { box-sizing: border-box; }
@@ -93,7 +78,11 @@ a { color: inherit; }
 .marca .selo { width: 44px; height: 44px; border-radius: 50%; flex: 0 0 auto; display: block; }
 .marca strong { font-family: var(--titulo); font-size: 17px; }
 .marca span { display: block; font-size: 11.5px; color: var(--tinta-suave); line-height: 1.1; }
-.navegacao { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.navegacao { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+.nav-links { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.nav-separador { width: 1px; height: 26px; background: var(--linha); }
+.btn.nav-agendar { padding: 8px 18px; }
+@media (max-width: 560px) { .nav-separador { display: none; } }
 
 /* ---------- botões ---------- */
 .btn {
@@ -243,86 +232,211 @@ tbody tr:last-child td { border-bottom: 0; }
 .posicao { display: inline-block; min-width: 2.2em; font-weight: 700; color: var(--realce); font-variant-numeric: tabular-nums; }
 td.numero, th.numero { text-align: right; font-variant-numeric: tabular-nums; }
 
-/* ---------- divulgação da escola ---------- */
-.abertura {
-  background:
-    radial-gradient(circle at 88% 20%, color-mix(in srgb, var(--marca) 22%, transparent) 0 120px, transparent 121px),
-    radial-gradient(circle at 70% 110%, color-mix(in srgb, var(--apoio) 30%, transparent) 0 90px, transparent 91px),
-    var(--marca-suave);
-  border-bottom: 1px solid var(--linha);
-}
-.abertura-dentro { padding-block: 34px 38px; }
-.abertura-texto { display: grid; gap: 12px; max-width: 60ch; }
-.abertura-texto h1 { font-size: clamp(28px, 5vw, 42px); line-height: 1.08; }
-.abertura-texto > p:not(.sobrenome) { color: var(--tinta-suave); font-size: 16px; }
-.abertura-acoes { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
+/* ================= tema infantil (páginas públicas) ================= */
 
+/* Rodapé sempre colado embaixo */
+.pagina { min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; }
+.pagina > main { flex: 1 0 auto; }
+
+body {
+  background-color: var(--papel);
+  background-image: radial-gradient(color-mix(in srgb, var(--marca) 13%, transparent) 2px, transparent 2.5px);
+  background-size: 28px 28px;
+}
+h1, h2, h3 { letter-spacing: -0.01em; }
+
+/* Botões com cara de brinquedo */
+.btn { font-family: var(--titulo); font-weight: 700; }
+.btn.principal, .btn.agendar {
+  box-shadow: var(--sombra-brinquedo); transition: transform .12s ease, box-shadow .12s ease;
+}
+.btn.principal:active, .btn.agendar:active { transform: translateY(3px); box-shadow: 0 2px 0 rgba(0, 92, 138, .22); }
 .btn.agendar {
-  background: var(--realce); border-color: var(--realce); color: var(--sobre-realce);
-  font-family: var(--titulo); font-weight: 700;
+  background: var(--verde); border-color: var(--verde); color: #fff;
+  box-shadow: 0 5px 0 #1d8a4f;
 }
-.btn.agendar:hover { filter: brightness(1.07); }
+.btn.agendar:hover { filter: brightness(1.05); }
 .btn.agendar.grande { font-size: 17px; padding: 11px 22px; }
+.btn.nav-agendar { padding: 8px 18px; }
 
-/* ---------- galeria: controles, grupos por aluno ---------- */
-.galeria-controles { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin: 26px 0 20px; }
-.galeria-controles .busca { max-width: 280px; }
-.grupos { display: grid; gap: 12px; }
-.grupo-aluno {
-  background: var(--cartao); border: 1px solid var(--linha); border-radius: var(--raio);
-  box-shadow: var(--sombra); overflow: hidden;
+/* Boas-vindas curtas: os jogos são o destaque */
+.boas-vindas { padding-block: 30px 6px; text-align: center; display: grid; gap: 8px; justify-items: center; }
+.boas-vindas h1 { font-size: clamp(30px, 6vw, 48px); line-height: 1.05; }
+.boas-vindas .destaque {
+  color: var(--marca);
+  background: linear-gradient(transparent 62%, color-mix(in srgb, var(--amarelo) 70%, transparent) 62%);
+  padding-inline: 4px;
 }
+.boas-vindas p { color: var(--tinta-suave); font-size: 17px; max-width: 52ch; }
+
+/* Abas grandes: Mais jogados / Por aluno */
+.abas-linha {
+  display: flex; gap: 14px; align-items: center; justify-content: space-between; flex-wrap: wrap;
+  margin: 22px 0 22px;
+}
+.abas {
+  display: inline-flex; gap: 6px; padding: 6px; background: var(--cartao);
+  border: 3px solid var(--linha); border-radius: 999px;
+}
+.aba {
+  font: inherit; font-family: var(--titulo); font-weight: 700; font-size: 17px; cursor: pointer;
+  border: 0; border-radius: 999px; padding: 9px 20px; background: transparent; color: var(--tinta-suave);
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.aba:hover { color: var(--tinta); background: var(--marca-suave); }
+.aba:focus-visible { outline: 3px solid var(--amarelo); outline-offset: 2px; }
+.aba[aria-selected="true"] { background: var(--marca); color: #fff; box-shadow: var(--sombra-brinquedo); }
+.aba-contador {
+  font-size: 13px; line-height: 1; background: var(--amarelo); color: #3a2c00;
+  border-radius: 999px; padding: 4px 8px;
+}
+.busca {
+  max-width: 300px; border-radius: 999px !important; border: 3px solid var(--linha) !important;
+  padding: 10px 18px !important; background: var(--cartao);
+}
+.busca:focus { border-color: var(--marca) !important; outline: none; }
+.aba .icone { width: 20px; height: 20px; flex: 0 0 auto; }
+.aba[aria-selected="true"] .icone { color: var(--amarelo); }
+
+/* Cartões de jogo: grandes, coloridos e com "Jogar" bem visível */
+.vitrine { display: grid; gap: 22px; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); }
+.jogo-cartao {
+  background: var(--cartao); border: 3px solid var(--linha); border-radius: var(--raio);
+  overflow: hidden; text-decoration: none; display: grid; grid-template-rows: auto 1fr;
+  box-shadow: 0 6px 0 color-mix(in srgb, var(--marca) 22%, transparent); min-width: 0;
+  transition: transform .15s ease, border-color .15s ease;
+}
+.jogo-cartao:hover { transform: translateY(-4px) rotate(-0.6deg); border-color: var(--marca); }
+.jogo-cartao:focus-visible { outline: 4px solid var(--amarelo); outline-offset: 3px; }
+.jogo-cartao .capa {
+  aspect-ratio: 4 / 3; background: var(--marca-suave); position: relative;
+  display: grid; place-items: center; overflow: hidden; border-bottom: 3px solid var(--linha);
+}
+.jogo-cartao .capa img { width: 100%; height: 100%; object-fit: cover; transition: transform .25s ease; }
+.jogo-cartao .capa img.sem-capa { width: 42%; height: auto; object-fit: contain; }
+.jogo-cartao:hover .capa img:not(.sem-capa) { transform: scale(1.05); }
+.jogo-cartao .medalha {
+  position: absolute; top: 10px; left: 10px; font-family: var(--titulo); font-weight: 700;
+  font-size: 16px; background: var(--cartao); color: var(--tinta); border-radius: 999px; padding: 3px 12px;
+  box-shadow: 0 3px 0 rgba(0,0,0,.15);
+}
+.jogo-cartao .medalha.lugar-1 { background: var(--amarelo); color: #3a2c00; }
+.jogo-cartao .medalha.lugar-2 { background: #dfe7ee; }
+.jogo-cartao .medalha.lugar-3 { background: #f2b48a; color: #4a2300; }
+.jogo-cartao .corpo { padding: 14px 16px 16px; display: grid; gap: 4px; align-content: start; }
+.jogo-cartao h3 { font-size: 20px; color: var(--tinta); }
+.jogo-cartao .autor { font-size: 14px; color: var(--tinta-suave); font-weight: 600; }
+.jogo-cartao .jogar {
+  justify-self: start; margin-top: 8px; font-family: var(--titulo); font-weight: 700; font-size: 16px;
+  background: var(--coral); color: #fff; border-radius: 999px; padding: 6px 18px;
+  box-shadow: 0 4px 0 #cf4a3f;
+}
+.jogo-cartao:hover .jogar { filter: brightness(1.06); }
+
+/* Alunos: sanfonas fechadas */
+.grupos { display: grid; gap: 14px; }
+.grupo-aluno {
+  background: var(--cartao); border: 3px solid var(--linha); border-radius: var(--raio); overflow: hidden;
+}
+.grupo-aluno[open] { border-color: var(--marca); }
 .grupo-aluno > summary {
-  list-style: none; cursor: pointer; display: flex; align-items: center; gap: 14px;
-  padding: 14px 18px;
+  list-style: none; cursor: pointer; display: flex; align-items: center; gap: 14px; padding: 14px 18px;
 }
 .grupo-aluno > summary::-webkit-details-marker { display: none; }
-.grupo-aluno > summary:hover { background: color-mix(in srgb, var(--marca) 6%, transparent); }
-.grupo-aluno > summary:focus-visible { outline: 2px solid var(--realce); outline-offset: -2px; }
+.grupo-aluno > summary:hover { background: var(--marca-suave); }
+.grupo-aluno > summary:focus-visible { outline: 3px solid var(--amarelo); outline-offset: -3px; }
 .grupo-aluno .avatar {
-  width: 42px; height: 42px; border-radius: 50%; flex: 0 0 auto; display: grid; place-items: center;
-  background: var(--marca); color: #fff; font-family: var(--titulo); font-weight: 700; font-size: 20px;
+  width: 48px; height: 48px; border-radius: 50%; flex: 0 0 auto; display: grid; place-items: center;
+  background: var(--amarelo); color: #3a2c00; font-family: var(--titulo); font-weight: 700; font-size: 22px;
 }
 .grupo-aluno .grupo-nome { display: grid; flex: 1; min-width: 0; }
-.grupo-aluno .grupo-nome strong { font-family: var(--titulo); font-size: 19px; line-height: 1.2; }
-.grupo-aluno .grupo-nome span { font-size: 13px; color: var(--tinta-suave); }
-.grupo-aluno .seta { font-size: 18px; color: var(--realce); transition: transform .2s ease; }
+.grupo-aluno .grupo-nome strong { font-family: var(--titulo); font-size: 21px; line-height: 1.2; }
+.grupo-aluno .grupo-nome span { font-size: 14px; color: var(--tinta-suave); }
+.grupo-aluno .ver-jogos {
+  font-family: var(--titulo); font-weight: 700; color: var(--marca-forte);
+  background: var(--marca-suave); border-radius: 999px; padding: 6px 14px; white-space: nowrap;
+}
+.grupo-aluno .seta { display: inline-block; transition: transform .2s ease; }
 .grupo-aluno[open] .seta { transform: rotate(180deg); }
-.grupo-aluno .vitrine { padding: 4px 18px 18px; }
+.grupo-aluno .vitrine { padding: 6px 18px 20px; }
 
-/* ---------- convite embaixo do jogo ---------- */
+/* Convite embaixo do jogo */
 .convite-jogo {
   margin-top: 22px; display: flex; gap: 16px; align-items: center; flex-wrap: wrap;
-  background: var(--marca-suave); border: 1px solid var(--linha); border-radius: var(--raio); padding: 16px 18px;
+  background: var(--cartao); border: 3px solid var(--linha); border-radius: var(--raio); padding: 16px 18px;
 }
 .convite-jogo img { border-radius: 50%; flex: 0 0 auto; }
 .convite-jogo > div { flex: 1 1 260px; display: grid; gap: 3px; }
 .convite-jogo p { color: var(--tinta-suave); font-size: 14px; }
 
-/* ---------- rodapé da escola ---------- */
-.escola-rodape { background: var(--tela); color: #e6f4fb; margin-top: 40px; }
+/* Rodapé: azul da escola, curto */
+.escola-rodape { background: var(--marca); color: #fff; margin-top: 48px; border-radius: 32px 32px 0 0; }
 .escola-rodape .dentro {
-  max-width: 1080px; margin: 0 auto; padding: 38px max(18px, env(safe-area-inset-left, 0px)) 26px;
-  display: grid; gap: 28px; grid-template-columns: 1.6fr 1fr 1fr;
+  max-width: 1080px; margin: 0 auto; padding: 30px max(18px, env(safe-area-inset-left, 0px)) 18px;
+  display: grid; gap: 26px; grid-template-columns: 1.3fr 1fr 1fr; align-items: start;
 }
 @media (max-width: 860px) { .escola-rodape .dentro { grid-template-columns: 1fr; } }
-.escola-rodape .convite { display: flex; gap: 18px; align-items: flex-start; }
-.escola-rodape .convite img { border-radius: 50%; flex: 0 0 auto; }
+.escola-rodape .convite { display: flex; gap: 16px; align-items: center; }
+.escola-rodape .convite img { border-radius: 50%; border: 3px solid #fff; flex: 0 0 auto; }
 .escola-rodape .convite > div { display: grid; gap: 10px; justify-items: start; }
-.escola-rodape h2 { font-size: 24px; color: #fff; }
-.escola-rodape h3 { font-size: 16px; color: #7fd3f7; margin-bottom: 8px; }
-.escola-rodape p, .escola-rodape address { color: #b9d3e2; font-style: normal; font-size: 14px; }
-.escola-rodape address { display: grid; gap: 2px; margin-bottom: 8px; }
+.escola-rodape h2 { font-size: 22px; color: #fff; }
+.escola-rodape h3 { font-size: 16px; color: #fff; margin-bottom: 6px; }
+.escola-rodape address { font-style: normal; font-size: 14px; display: grid; gap: 1px; margin-bottom: 6px; color: #e8f6fd; }
 .escola-rodape a { color: #fff; }
-.escola-rodape .link-forte { font-weight: 600; color: #7fd3f7; text-decoration: none; }
-.escola-rodape .link-forte:hover { text-decoration: underline; }
-.escola-rodape .contato { margin-top: 10px; }
-.escola-rodape .btn.agendar { background: #0072a8; border-color: #0072a8; color: #fff; }
-.horarios { display: grid; grid-template-columns: auto auto; gap: 6px 18px; margin: 0; font-size: 14px; }
-.horarios dt { color: #b9d3e2; }
-.horarios dd { margin: 0; font-weight: 600; color: #fff; font-variant-numeric: tabular-nums; }
-.horarios dd.fechado { color: #ff9a9a; }
+.escola-rodape .link-forte { font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+.horarios { display: grid; grid-template-columns: auto auto; gap: 3px 16px; margin: 0; font-size: 14px; }
+.horarios dt { color: #e8f6fd; }
+.horarios dd { margin: 0; font-weight: 700; color: #fff; font-variant-numeric: tabular-nums; }
+.horarios dd.fechado { color: #ffe08a; }
 .escola-rodape .assinatura {
-  max-width: 1080px; margin: 0 auto; padding: 14px max(18px, env(safe-area-inset-left, 0px)) 22px;
-  border-top: 1px solid #16384e; font-size: 12.5px; color: #7f9db0;
+  max-width: 1080px; margin: 0 auto; padding: 12px max(18px, env(safe-area-inset-left, 0px)) 18px;
+  border-top: 2px solid rgba(255,255,255,.25); font-size: 13px; color: #e8f6fd;
+}
+
+/* ================= celular e toque ================= */
+
+/* Aviso de toque: só em aparelhos sem mouse (celular e tablet) */
+.aviso-toque {
+  display: none; margin-bottom: 14px; font-size: 14px; line-height: 1.45;
+  background: #fff6d6; border: 3px solid var(--amarelo); color: #4a3900;
+  border-radius: 16px; padding: 10px 14px;
+}
+.dica-teclado { color: var(--tinta-suave); font-size: 13px; margin-top: 12px; }
+@media (pointer: coarse) {
+  .aviso-toque { display: block; }
+  .dica-teclado { display: none; }
+}
+
+@media (max-width: 640px) {
+  .envoltorio { padding-block: 18px 40px; }
+
+  /* Topo numa linha só: logo + botões */
+  .topo .dentro { flex-wrap: nowrap; padding-block: 10px; gap: 10px; }
+  .marca { gap: 8px; min-width: 0; }
+  .marca .selo { width: 38px; height: 38px; }
+  .marca > span { display: none; }
+  .navegacao { flex-wrap: nowrap; gap: 8px; }
+  .navegacao .btn.pequeno, .btn.nav-agendar { padding: 7px 12px; font-size: 13px; white-space: nowrap; }
+
+  /* Boas-vindas mais compactas */
+  .boas-vindas { padding-block: 20px 0; }
+  .boas-vindas p { font-size: 15px; }
+
+  /* Abas ocupando a largura toda, sem quebrar o texto */
+  .abas-linha { margin: 16px 0; gap: 10px; }
+  .abas { display: flex; width: 100%; }
+  .aba { flex: 1; justify-content: center; font-size: 15px; padding: 9px 8px; white-space: nowrap; gap: 6px; }
+  .aba .icone { width: 18px; height: 18px; }
+  .aba-contador { font-size: 12px; padding: 3px 7px; }
+  .busca { max-width: none; width: 100%; }
+
+  .vitrine { gap: 16px; }
+  .grupo-aluno > summary { padding: 12px 14px; gap: 10px; }
+  .grupo-aluno .vitrine { padding: 4px 12px 14px; }
+
+  /* Jogo: altura de celular em vez da proporção do computador */
+  .palco iframe { aspect-ratio: auto !important; height: 75vh; height: 75dvh; min-height: 420px; }
+
+  .convite-jogo { padding: 14px; }
+  .escola-rodape { margin-top: 32px; border-radius: 24px 24px 0 0; }
 }

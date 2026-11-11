@@ -5,7 +5,8 @@ const publico = computed(() => !route.path.startsWith('/admin'))
 </script>
 
 <template>
-  <div>
+  <!-- .pagina ocupa a tela toda: o rodapé fica sempre colado embaixo. -->
+  <div class="pagina">
     <SiteTopo />
     <NuxtPage />
     <EscolaRodape v-if="publico" />

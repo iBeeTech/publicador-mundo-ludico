@@ -4,6 +4,8 @@ const supabase = useSupabaseClient()
 const route = useRoute()
 
 const noAdmin = computed(() => route.path.startsWith('/admin'))
+// O CTA de matrícula some só para o professor logado trabalhando no painel.
+const mostrarAgendar = computed(() => !(user.value && noAdmin.value))
 
 async function sair() {
   await supabase.auth.signOut()
@@ -23,20 +25,26 @@ async function sair() {
       </NuxtLink>
 
       <nav class="navegacao" aria-label="Principal">
-        <NuxtLink v-if="noAdmin" to="/" class="btn pequeno">Ver a galeria</NuxtLink>
-        <template v-if="user">
-          <NuxtLink v-if="!noAdmin" to="/admin" class="btn pequeno">Painel</NuxtLink>
-          <NuxtLink to="/admin/jogos/novo" class="btn pequeno principal">Publicar jogo</NuxtLink>
-          <button type="button" class="btn pequeno" @click="sair">Sair</button>
-        </template>
-        <template v-else>
+        <!-- Navegação: sempre um caminho de volta para o "outro lado" do site. -->
+        <div class="nav-links">
+          <NuxtLink v-if="noAdmin" to="/" class="btn pequeno">Ver a galeria</NuxtLink>
+          <NuxtLink v-else-if="user" to="/admin" class="btn pequeno">Painel</NuxtLink>
+          <NuxtLink v-else to="/admin/login" class="btn pequeno">Área do professor</NuxtLink>
+
+          <template v-if="user && noAdmin">
+            <NuxtLink to="/admin/jogos/novo" class="btn pequeno principal">Publicar jogo</NuxtLink>
+            <button type="button" class="btn pequeno" @click="sair">Sair</button>
+          </template>
+        </div>
+
+        <template v-if="mostrarAgendar">
+          <span class="nav-separador" aria-hidden="true" />
           <a
             :href="WHATSAPP_LINK" target="_blank" rel="noopener noreferrer"
-            class="btn pequeno principal"
+            class="btn agendar nav-agendar"
           >
             Agendar aula
           </a>
-          <NuxtLink to="/admin/login" class="btn pequeno">Área do professor</NuxtLink>
         </template>
       </nav>
     </div>

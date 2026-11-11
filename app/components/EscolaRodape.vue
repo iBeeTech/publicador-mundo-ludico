@@ -1,19 +1,15 @@
 <script setup lang="ts">
-// Rodapé de divulgação: onde fica a escola, quando abre e como agendar.
+// Rodapé de divulgação: convite para aula, onde fica a escola e quando abre.
 </script>
 
 <template>
   <footer class="escola-rodape">
     <div class="dentro">
       <section class="convite" aria-labelledby="convite-titulo">
-        <img src="/logo-128.png" alt="Escola Mundo Lúdico" width="96" height="96" loading="lazy">
+        <img src="/logo-128.png" alt="Escola Mundo Lúdico" width="84" height="84" loading="lazy">
         <div>
-          <h2 id="convite-titulo">Seu filho também pode criar jogos</h2>
-          <p>
-            Na Escola Mundo Lúdico, a criança aprende programando o próprio jogo, do primeiro
-            desenho ao último ponto do placar. Venha conhecer.
-          </p>
-          <BotaoAgendar tamanho="grande" />
+          <h2 id="convite-titulo">Quer criar o seu jogo também?</h2>
+          <BotaoAgendar />
         </div>
       </section>
 
@@ -22,13 +18,7 @@
         <address>
           <span v-for="linha in ENDERECO_LINHAS" :key="linha">{{ linha }}</span>
         </address>
-        <a :href="MAPA_LINK" target="_blank" rel="noopener noreferrer" class="link-forte">
-          Ver no Google Maps ›
-        </a>
-        <p class="contato">
-          WhatsApp:
-          <a :href="WHATSAPP_LINK" target="_blank" rel="noopener noreferrer">{{ WHATSAPP_EXIBICAO }}</a>
-        </p>
+        <a :href="MAPA_LINK" target="_blank" rel="noopener noreferrer" class="link-forte">Ver no mapa ›</a>
       </section>
 
       <section class="bloco" aria-labelledby="horario-titulo">
@@ -41,6 +31,9 @@
         </dl>
       </section>
     </div>
-    <p class="assinatura">© {{ ESCOLA_NOME }} · Franca - SP</p>
+    <p class="assinatura">
+      © {{ ESCOLA_NOME }} · WhatsApp
+      <a :href="WHATSAPP_LINK" target="_blank" rel="noopener noreferrer">{{ WHATSAPP_EXIBICAO }}</a>
+    </p>
   </footer>
 </template>
