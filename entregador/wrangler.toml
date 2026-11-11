@@ -1,0 +1,11 @@
+# Worker que entrega os jogos do Construct 3 guardados no Supabase Storage.
+# Deploy: cd entregador && npx wrangler deploy
+name = "jogos-mundo-ludico"
+main = "src/index.js"
+compatibility_date = "2025-07-15"
+workers_dev = true
+
+[vars]
+# Valores públicos: a URL do projeto Supabase e quem pode embutir os jogos.
+SUPABASE_URL = "https://gqsvgvmzorgkiejkwunp.supabase.co"
+SITES_PERMITIDOS = "https://publicador-mundo-ludico.pages.dev https://*.publicador-mundo-ludico.pages.dev http://localhost:3000"

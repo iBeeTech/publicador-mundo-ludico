@@ -39,6 +39,22 @@ export interface ExportLido {
   altura: number
 }
 
+const ehMedida = (v: unknown): v is number => typeof v === 'number' && v > 0 && Number.isInteger(v)
+
+/**
+ * Lê o tamanho da tela no data.json do export. O Construct 3 atual grava
+ * largura e altura em project[10] e project[11]; versões antigas gravavam
+ * um par [largura, altura] em project[10]. Devolve null se não reconhecer.
+ */
+export function lerTamanhoDaTela(json: unknown): { largura: number; altura: number } | null {
+  const projeto = (json as { project?: unknown })?.project
+  if (!Array.isArray(projeto)) return null
+  const [a, b] = [projeto[10], projeto[11]]
+  if (ehMedida(a) && ehMedida(b)) return { largura: a, altura: b }
+  if (Array.isArray(a) && ehMedida(a[0]) && ehMedida(a[1])) return { largura: a[0], altura: a[1] }
+  return null
+}
+
 /** Confere se o ZIP é mesmo um export HTML5 do Construct e devolve os arquivos. */
 export async function lerExport(zipFile: File): Promise<ExportLido> {
   const zip = await JSZip.loadAsync(zipFile)
@@ -91,11 +107,10 @@ export async function lerExport(zipFile: File): Promise<ExportLido> {
   const data = daPasta.find((f) => f.name === base + 'data.json')
   if (data) {
     try {
-      const json = JSON.parse(await data.async('string'))
-      const vp = json?.project?.[10] ?? json?.project?.find?.((v: unknown) => Array.isArray(v) && v.length === 2)
-      if (Array.isArray(vp) && typeof vp[0] === 'number' && typeof vp[1] === 'number') {
-        largura = vp[0]
-        altura = vp[1]
+      const tela = lerTamanhoDaTela(JSON.parse(await data.async('string')))
+      if (tela) {
+        largura = tela.largura
+        altura = tela.altura
       }
     } catch {
       /* se o formato mudar, fica no padrão 800x600 e o professor ajusta à mão */

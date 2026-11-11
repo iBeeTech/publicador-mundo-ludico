@@ -9,9 +9,13 @@ interface Aluno {
 }
 interface Jogo {
   id: string; aluno_id: string; titulo: string; pasta: string
-  publicado: boolean; bytes: number; criado_em: string
+  publicado: boolean; bytes: number; jogadas: number; criado_em: string
   alunos: { nome_exibicao: string; autorizacao_responsavel: boolean } | null
 }
+type Modo = 'aluno' | 'mais-jogados'
+type Linha =
+  | { tipo: 'grupo'; chave: string; nome: string; total: number; jogadas: number }
+  | { tipo: 'jogo'; chave: string; jogo: Jogo; posicao: number | null }
 
 const supabase = useSupabaseClient()
 const aviso = ref('')
@@ -19,7 +23,7 @@ const aviso = ref('')
 const { data: jogos, refresh } = await useAsyncData('admin-jogos', async () => {
   const { data, error } = await supabase
     .from('jogos')
-    .select('id, aluno_id, titulo, pasta, publicado, bytes, criado_em, alunos(nome_exibicao, autorizacao_responsavel)')
+    .select('id, aluno_id, titulo, pasta, publicado, bytes, jogadas, criado_em, alunos(nome_exibicao, autorizacao_responsavel)')
     .order('criado_em', { ascending: false })
   if (error) throw error
   return (data ?? []) as unknown as Jogo[]
@@ -36,6 +40,37 @@ const publicados = computed(() => (jogos.value ?? []).filter((j) => j.publicado)
 const semAutorizacao = computed(() =>
   (jogos.value ?? []).filter((j) => j.publicado && j.alunos && !j.alunos.autorizacao_responsavel).length
 )
+
+const modo = ref<Modo>('aluno')
+const jogadasDe = (j: Jogo) => Number(j.jogadas || 0)
+const nomeDoAutor = (j: Jogo) => j.alunos?.nome_exibicao ?? 'Sem aluno'
+
+/** Uma linha de título por aluno, seguida dos jogos dele (mais recentes primeiro). */
+function linhasPorAluno(lista: Jogo[]): Linha[] {
+  const grupos = new Map<string, Jogo[]>()
+  for (const j of lista) grupos.set(j.aluno_id, [...(grupos.get(j.aluno_id) ?? []), j])
+  return [...grupos.entries()]
+    .sort(([, a], [, b]) => nomeDoAutor(a[0]!).localeCompare(nomeDoAutor(b[0]!), 'pt-BR'))
+    .flatMap(([alunoId, doAluno]) => [
+      {
+        tipo: 'grupo' as const, chave: `grupo-${alunoId}`, nome: nomeDoAutor(doAluno[0]!),
+        total: doAluno.length, jogadas: doAluno.reduce((s, j) => s + jogadasDe(j), 0)
+      },
+      ...doAluno.map((jogo) => ({ tipo: 'jogo' as const, chave: jogo.id, jogo, posicao: null }))
+    ])
+}
+
+/** Ranking único, do mais jogado para o menos jogado. */
+function linhasMaisJogados(lista: Jogo[]): Linha[] {
+  return [...lista]
+    .sort((a, b) => jogadasDe(b) - jogadasDe(a) || a.titulo.localeCompare(b.titulo, 'pt-BR'))
+    .map((jogo, i) => ({ tipo: 'jogo' as const, chave: jogo.id, jogo, posicao: i + 1 }))
+}
+
+const linhas = computed<Linha[]>(() => {
+  const lista = jogos.value ?? []
+  return modo.value === 'aluno' ? linhasPorAluno(lista) : linhasMaisJogados(lista)
+})
 
 async function alternar(j: Jogo) {
   const { error } = await supabase.from('jogos').update({ publicado: !j.publicado }).eq('id', j.id)
@@ -86,37 +121,62 @@ useHead({ title: 'Painel — Arcade Mundo Lúdico' })
     </div>
 
     <div class="painel">
-      <h2>Jogos</h2>
+      <div class="painel-topo">
+        <h2>Jogos</h2>
+        <div class="chips" role="group" aria-label="Como mostrar os jogos">
+          <button type="button" class="chip" :aria-pressed="modo === 'aluno'" @click="modo = 'aluno'">
+            Por aluno
+          </button>
+          <button
+            type="button" class="chip" :aria-pressed="modo === 'mais-jogados'"
+            @click="modo = 'mais-jogados'"
+          >
+            Mais jogados
+          </button>
+        </div>
+      </div>
 
       <div v-if="jogos?.length" class="rolagem">
         <table>
           <thead>
             <tr>
-              <th>Jogo</th><th>Autor</th><th>Tamanho</th><th>Situação</th><th>Ações</th>
+              <th>Jogo</th><th>Autor</th><th class="numero">Jogadas</th><th>Tamanho</th><th>Situação</th><th>Ações</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="j in jogos" :key="j.id">
-              <td><strong>{{ j.titulo }}</strong></td>
-              <td>{{ j.alunos?.nome_exibicao ?? '—' }}</td>
-              <td>{{ formatarBytes(Number(j.bytes || 0)) }}</td>
-              <td>
-                <span v-if="!j.publicado" class="etiqueta cinza">rascunho</span>
-                <span v-else-if="j.alunos && !j.alunos.autorizacao_responsavel" class="etiqueta vermelha">
-                  retido: sem autorização
-                </span>
-                <span v-else class="etiqueta verde">na galeria</span>
-              </td>
-              <td>
-                <div class="acoes">
-                  <NuxtLink :to="`/jogo/${j.id}`" class="btn pequeno">Ver</NuxtLink>
-                  <button type="button" class="btn pequeno" @click="alternar(j)">
-                    {{ j.publicado ? 'Despublicar' : 'Publicar' }}
-                  </button>
-                  <button type="button" class="btn pequeno perigo" @click="apagar(j)">Apagar</button>
-                </div>
-              </td>
-            </tr>
+            <template v-for="l in linhas" :key="l.chave">
+              <tr v-if="l.tipo === 'grupo'" class="linha-grupo">
+                <th colspan="6" scope="rowgroup">
+                  {{ l.nome }}
+                  <span>{{ l.total }} {{ l.total === 1 ? 'jogo' : 'jogos' }} · {{ l.jogadas }} jogadas</span>
+                </th>
+              </tr>
+              <tr v-else>
+                <td>
+                  <span v-if="l.posicao" class="posicao">{{ l.posicao }}º</span>
+                  <strong>{{ l.jogo.titulo }}</strong>
+                </td>
+                <td>{{ l.jogo.alunos?.nome_exibicao ?? '—' }}</td>
+                <td class="numero">{{ jogadasDe(l.jogo) }}</td>
+                <td>{{ formatarBytes(Number(l.jogo.bytes || 0)) }}</td>
+                <td>
+                  <span v-if="!l.jogo.publicado" class="etiqueta cinza">rascunho</span>
+                  <span v-else-if="l.jogo.alunos && !l.jogo.alunos.autorizacao_responsavel" class="etiqueta vermelha">
+                    retido: sem autorização
+                  </span>
+                  <span v-else class="etiqueta verde">na galeria</span>
+                </td>
+                <td>
+                  <div class="acoes">
+                    <NuxtLink :to="`/jogo/${l.jogo.id}`" class="btn pequeno">Ver</NuxtLink>
+                    <button type="button" class="btn pequeno" @click="alternar(l.jogo)">
+                      {{ l.jogo.publicado ? 'Despublicar' : 'Publicar' }}
+                    </button>
+                    <button type="button" class="btn pequeno perigo" @click="apagar(l.jogo)">Apagar</button>
+                  </div>
+                </td>
+              </tr>
+            </template>
           </tbody>
         </table>
       </div>

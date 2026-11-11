@@ -1,20 +1,11 @@
 <script setup lang="ts">
-interface JogoPublico {
-  id: string
-  titulo: string
-  descricao: string | null
-  pasta: string
-  capa_path: string | null
-  largura: number
-  altura: number
-  criado_em: string
-  autor: string
-}
+import { agruparPorAluno, maisJogados, type JogoPublico } from '~/utils/jogoPublico'
+
+type Visao = 'alunos' | 'mais-jogados'
 
 const supabase = useSupabaseClient()
-const urlDe = useStorageUrl()
 const busca = ref('')
-
+const visao = ref<Visao>('alunos')
 const falhaConexao = ref(false)
 
 const { data: jogos, pending } = await useAsyncData('galeria', async () => {
@@ -35,69 +26,108 @@ const { data: jogos, pending } = await useAsyncData('galeria', async () => {
 
 const filtrados = computed(() => {
   const t = busca.value.trim().toLowerCase()
-  if (!t) return jogos.value ?? []
-  return (jogos.value ?? []).filter(
-    (j) => j.titulo.toLowerCase().includes(t) || j.autor.toLowerCase().includes(t)
-  )
+  const todos = jogos.value ?? []
+  if (!t) return todos
+  return todos.filter((j) => j.titulo.toLowerCase().includes(t) || j.autor.toLowerCase().includes(t))
 })
 
-const autores = computed(() => new Set((jogos.value ?? []).map((j) => j.autor)).size)
+const grupos = computed(() => agruparPorAluno(filtrados.value))
+const ranking = computed(() => maisJogados(filtrados.value))
+const autores = computed(() => new Set((jogos.value ?? []).map((j) => j.autor_id)).size)
 
-useHead({ title: 'Arcade Mundo Lúdico — jogos feitos pelos alunos' })
+// Com busca ativa (ou um aluno só), os grupos abrem sozinhos para o resultado aparecer.
+const abrirTodos = computed(() => busca.value.trim() !== '' || grupos.value.length === 1)
+
+useHead({
+  title: 'Arcade Mundo Lúdico — jogos feitos pelos alunos',
+  meta: [
+    {
+      name: 'description',
+      content:
+        'Jogue os jogos criados pelos alunos da Escola Mundo Lúdico, em Franca - SP. Agende uma aula pelo WhatsApp.'
+    }
+  ]
+})
 </script>
 
 <template>
-  <main class="envoltorio">
-    <section style="display:grid; gap:10px; max-width:62ch; margin-bottom:22px">
-      <p class="sobrenome">Escola Mundo Lúdico</p>
-      <h1>Os jogos da turma, para jogar agora</h1>
-      <p style="color:var(--tinta-suave)">
-        Cada jogo aqui foi construído por um aluno no Construct 3, do primeiro evento ao último.
-        Clique em qualquer um para jogar no navegador, sem instalar nada.
-      </p>
+  <main>
+    <section class="abertura">
+      <div class="envoltorio abertura-dentro">
+        <div class="abertura-texto">
+          <p class="sobrenome">Escola Mundo Lúdico · Franca - SP</p>
+          <h1>Jogos de verdade, criados pelos nossos alunos</h1>
+          <p>
+            Cada jogo daqui foi programado por uma criança da Mundo Lúdico. Escolha um aluno,
+            abra o jogo e jogue no navegador, sem instalar nada.
+          </p>
+          <div class="abertura-acoes">
+            <BotaoAgendar tamanho="grande" />
+            <a href="#onde-titulo" class="btn">Onde fica a escola</a>
+          </div>
+        </div>
+      </div>
     </section>
 
-    <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:20px">
-      <input
-        v-model="busca"
-        type="text"
-        placeholder="Buscar por jogo ou autor"
-        style="max-width:300px"
-        aria-label="Buscar jogos"
-      >
-      <span v-if="jogos?.length" class="etiqueta cinza">
-        {{ jogos.length }} jogos · {{ autores }} criadores
-      </span>
-    </div>
-
-    <p v-if="pending" class="vazio-estado">Carregando a galeria…</p>
-
-    <p v-else-if="falhaConexao" class="aviso erro">
-      <b>Não consegui falar com o banco.</b>
-      Confira o <code>.env</code> (SUPABASE_URL e SUPABASE_KEY) e se o schema.sql já foi rodado.
-    </p>
-
-    <div v-else-if="filtrados.length" class="vitrine">
-      <NuxtLink v-for="j in filtrados" :key="j.id" :to="`/jogo/${j.id}`" class="jogo-cartao">
-        <div class="capa">
-          <img v-if="j.capa_path" :src="urlDe(j.capa_path)!" :alt="''" loading="lazy">
-          <span v-else class="vazia">▶</span>
+    <div class="envoltorio">
+      <div class="galeria-controles">
+        <div class="chips" role="group" aria-label="Como ver os jogos">
+          <button type="button" class="chip" :aria-pressed="visao === 'alunos'" @click="visao = 'alunos'">
+            Por aluno
+          </button>
+          <button
+            type="button" class="chip" :aria-pressed="visao === 'mais-jogados'"
+            @click="visao = 'mais-jogados'"
+          >
+            Mais jogados
+          </button>
         </div>
-        <div class="corpo">
-          <h3>{{ j.titulo }}</h3>
-          <span class="autor">{{ j.autor }}</span>
-          <p v-if="j.descricao" class="resumo">{{ j.descricao }}</p>
+        <input
+          v-model="busca" type="text" placeholder="Buscar por jogo ou aluno"
+          aria-label="Buscar jogos" class="busca"
+        >
+        <span v-if="jogos?.length" class="etiqueta cinza">
+          {{ jogos.length }} jogos · {{ autores }} {{ autores === 1 ? 'aluno' : 'alunos' }}
+        </span>
+      </div>
+
+      <p v-if="pending" class="vazio-estado">Carregando a galeria…</p>
+
+      <p v-else-if="falhaConexao" class="aviso erro">
+        <b>Não foi possível carregar os jogos agora.</b> Tente de novo em alguns instantes.
+      </p>
+
+      <template v-else-if="filtrados.length">
+        <div v-if="visao === 'alunos'" class="grupos">
+          <details v-for="g in grupos" :key="g.autorId" class="grupo-aluno" :open="abrirTodos">
+            <summary>
+              <span class="avatar" aria-hidden="true">{{ g.autor.charAt(0) }}</span>
+              <span class="grupo-nome">
+                <strong>{{ g.autor }}</strong>
+                <span>
+                  {{ g.jogos.length }} {{ g.jogos.length === 1 ? 'jogo' : 'jogos' }} ·
+                  {{ g.jogadas }} {{ g.jogadas === 1 ? 'jogada' : 'jogadas' }}
+                </span>
+              </span>
+              <span class="seta" aria-hidden="true">▾</span>
+            </summary>
+            <div class="vitrine">
+              <JogoCartao v-for="j in g.jogos" :key="j.id" :jogo="j" />
+            </div>
+          </details>
         </div>
-      </NuxtLink>
-    </div>
 
-    <p v-else-if="busca" class="vazio-estado">
-      Nenhum jogo com “{{ busca }}”.
-    </p>
+        <div v-else class="vitrine">
+          <JogoCartao v-for="(j, i) in ranking" :key="j.id" :jogo="j" :posicao="i + 1" mostrar-autor />
+        </div>
+      </template>
 
-    <div v-else class="vazio-estado">
-      <p style="margin-bottom:6px"><strong>A galeria ainda está vazia.</strong></p>
-      <p>Assim que o primeiro jogo for publicado pelo painel do professor, ele aparece aqui.</p>
+      <p v-else-if="busca" class="vazio-estado">Nenhum jogo ou aluno com “{{ busca }}”.</p>
+
+      <div v-else class="vazio-estado">
+        <p style="margin-bottom:6px"><strong>A galeria ainda está vazia.</strong></p>
+        <p>Os primeiros jogos dos alunos aparecem aqui em breve.</p>
+      </div>
     </div>
   </main>
 </template>

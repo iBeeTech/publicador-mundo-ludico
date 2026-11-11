@@ -3,4 +3,8 @@ export default defineNuxtRouteMiddleware((to) => {
   if (!user.value) {
     return navigateTo({ path: '/admin/login', query: { voltar: to.fullPath } })
   }
+
+  if (precisaTrocarSenha(user.value) && to.path !== ROTA_TROCAR_SENHA) {
+    return navigateTo({ path: ROTA_TROCAR_SENHA, query: { voltar: to.fullPath } })
+  }
 })

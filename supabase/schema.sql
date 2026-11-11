@@ -125,3 +125,51 @@ $$;
 
 revoke all on function public.arquivos_do_jogo(uuid) from anon;
 grant execute on function public.arquivos_do_jogo(uuid) to authenticated;
+
+-- ---------- 6. Contador de jogadas ----------
+-- A página do jogo chama registrar_jogada ao abrir. Só conta jogo que está
+-- de fato na galeria (publicado E com autorização), e o visitante não
+-- consegue mexer em nenhuma outra coluna: a função só soma 1.
+
+alter table public.jogos add column if not exists jogadas bigint not null default 0;
+
+create or replace function public.registrar_jogada(jogo uuid)
+returns void
+language sql
+security definer
+set search_path = public
+as $$
+  update public.jogos j
+     set jogadas = j.jogadas + 1
+    from public.alunos a
+   where j.id = jogo
+     and a.id = j.aluno_id
+     and j.publicado = true
+     and a.autorizacao_responsavel = true;
+$$;
+
+revoke all on function public.registrar_jogada(uuid) from public;
+grant execute on function public.registrar_jogada(uuid) to anon, authenticated;
+
+-- ---------- 7. Galeria agrupada por aluno e "mais jogados" ----------
+-- A view ganha o id do aluno (para agrupar mesmo quando dois alunos têm o
+-- mesmo nome de exibição) e o contador de jogadas. Colunas novas só podem
+-- entrar no fim de uma view existente.
+
+create or replace view public.vw_jogos_publicos as
+select
+  j.id,
+  j.titulo,
+  j.descricao,
+  j.pasta,
+  j.capa_path,
+  j.largura,
+  j.altura,
+  j.criado_em,
+  a.nome_exibicao as autor,
+  a.id            as autor_id,
+  j.jogadas
+from public.jogos j
+join public.alunos a on a.id = j.aluno_id
+where j.publicado = true
+  and a.autorizacao_responsavel = true;

@@ -33,6 +33,7 @@ useHead({ title: 'Entrar — Arcade Mundo Lúdico' })
 <template>
   <main class="envoltorio" style="max-width:420px">
     <div class="painel" style="margin-top:40px">
+      <img src="/logo-128.png" alt="Escola Mundo Lúdico" width="88" height="88" style="border-radius:50%">
       <div>
         <p class="sobrenome">Área do professor</p>
         <h2 style="margin-top:4px">Entrar no painel</h2>

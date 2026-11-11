@@ -1,7 +1,7 @@
 <script setup lang="ts">
 const route = useRoute()
 const supabase = useSupabaseClient()
-const urlDe = useStorageUrl()
+const urlDoJogo = useJogoUrl()
 
 const { data: jogo } = await useAsyncData(`jogo-${route.params.id}`, async () => {
   const { data, error } = await supabase
@@ -16,8 +16,30 @@ const { data: jogo } = await useAsyncData(`jogo-${route.params.id}`, async () =>
   } | null
 })
 
-const src = computed(() => (jogo.value ? urlDe(jogo.value.pasta + 'index.html') : null))
+const src = computed(() => (jogo.value ? urlDoJogo(jogo.value.pasta) : null))
 const palco = ref<HTMLElement | null>(null)
+const quadro = ref<HTMLIFrameElement | null>(null)
+
+// O jogo roda dentro de um iframe. Sem foco nele, as teclas vão para esta
+// página (e as setas só rolam a tela). Por isso o foco vai para o jogo
+// assim que ele carrega, e de novo quando a pessoa clica em volta dele.
+function focarJogo() {
+  quadro.value?.focus()
+}
+
+// Conta uma jogada por jogo a cada sessão do navegador.
+onMounted(async () => {
+  if (!jogo.value) return
+  const chave = `jogou-${jogo.value.id}`
+  try {
+    if (sessionStorage.getItem(chave)) return
+    sessionStorage.setItem(chave, '1')
+  } catch {
+    /* navegação privada sem storage: conta mesmo assim */
+  }
+  const { error } = await supabase.rpc('registrar_jogada', { jogo: jogo.value.id })
+  if (error) console.error('Não foi possível registrar a jogada', error.message)
+})
 
 function telaCheia() {
   palco.value?.requestFullscreen?.().catch(() => {})
@@ -42,20 +64,30 @@ useHead(() => ({ title: jogo.value ? `${jogo.value.titulo} — Arcade Mundo Lúd
         {{ jogo.descricao }}
       </p>
 
-      <div ref="palco" class="palco">
+      <div ref="palco" class="palco" @click="focarJogo">
         <iframe
           v-if="src"
+          ref="quadro"
           :src="src"
           :title="jogo.titulo"
           :style="{ aspectRatio: `${jogo.largura} / ${jogo.altura}` }"
           allow="autoplay; fullscreen; gamepad; clipboard-write"
-          allowfullscreen
+          @load="focarJogo"
         />
       </div>
 
       <p style="color:var(--tinta-suave); font-size:13px; margin-top:12px">
-        Clique dentro do jogo antes de usar o teclado. Alguns jogos só ligam o som depois do primeiro clique.
+        Se o teclado parar de responder, clique no jogo. Alguns jogos só ligam o som depois do primeiro clique.
       </p>
+
+      <aside class="convite-jogo">
+        <img src="/logo-128.png" alt="" width="64" height="64" loading="lazy">
+        <div>
+          <strong>{{ jogo.autor }} criou este jogo nas aulas da Escola Mundo Lúdico.</strong>
+          <p>Seu filho também pode programar o próprio jogo. Agende uma aula experimental.</p>
+        </div>
+        <BotaoAgendar />
+      </aside>
     </template>
 
     <div v-else class="vazio-estado">
